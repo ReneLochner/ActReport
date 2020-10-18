@@ -12,34 +12,13 @@ namespace ActReport.ViewModel {
     public class EmployeeViewModel : BaseViewModel {
         private string _firstName;
         private string _lastName;
+        private string _filterString;
+        private Employee _newEmployee;
         private Employee _selectedEmployee;
         private ObservableCollection<Employee> _employees;
         private ICommand _cmdSaveChanges;
-
-        public ICommand CmdSaveChanges {
-            get {
-                if (_cmdSaveChanges == null)
-                {
-                    _cmdSaveChanges = new RelayCommand(
-                        execute: _ =>
-                        {
-                            using IUnitOfWork uow = new UnitOfWork();
-                            _selectedEmployee.FirstName = _firstName;
-                            _selectedEmployee.LastName = _lastName;
-                            uow.EmployeeRepository.Update(_selectedEmployee);
-                            uow.Save();
-
-                            LoadEmployees();
-                        },
-                        canExecute: _ => _selectedEmployee != null);
-                }
-
-                return _cmdSaveChanges;
-            }
-            set {
-                _cmdSaveChanges = value;
-            }
-        }
+        private ICommand _cmdAddEntry;
+        private ICommand _cmdFilterEmployees;
 
         public EmployeeViewModel()
         {
@@ -59,6 +38,14 @@ namespace ActReport.ViewModel {
             set {
                 _lastName = value;
                 OnPropertyChanged(nameof(LastName));
+            }
+        }
+
+        public string FilterString {
+            get => _filterString;
+            set {
+                _filterString = value;
+                OnPropertyChanged(nameof(FilterString));
             }
         }
 
@@ -92,6 +79,66 @@ namespace ActReport.ViewModel {
                     .ToList();
 
                 Employees = new ObservableCollection<Employee>(employees);
+            }
+        }
+
+        public ICommand CmdSaveChanges {
+             get {
+                if (_cmdSaveChanges == null)
+                {
+                    _cmdSaveChanges = new RelayCommand(
+                        execute: _ =>
+                        {
+                            using IUnitOfWork uow = new UnitOfWork();
+                            _selectedEmployee.FirstName = _firstName;
+                            _selectedEmployee.LastName = _lastName;
+                            uow.EmployeeRepository.Update(_selectedEmployee);
+                            uow.Save();
+
+                            LoadEmployees();
+                        },
+                        canExecute: _ => _selectedEmployee != null && LastName.Length >= 3);
+                }
+
+                return _cmdSaveChanges;
+            }
+            set {
+                _cmdSaveChanges = value;
+            }
+        }
+
+        public ICommand CmdAddEntry {
+            get {
+                if (_cmdAddEntry == null)
+                {
+                    _cmdAddEntry = new RelayCommand(
+                        execute: _ =>
+                        {
+                            using IUnitOfWork uow = new UnitOfWork();
+                            _newEmployee = new Employee()
+                            {
+                                FirstName = _firstName,
+                                LastName = _lastName
+                            };
+                            uow.EmployeeRepository.Insert(_selectedEmployee);
+                            uow.Save();
+
+                            LoadEmployees();
+                        },
+                        canExecute: _ => 
+                        !string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName));
+                }
+
+                return _cmdAddEntry;
+            }
+            set {
+                _cmdAddEntry = value;
+            }
+        }
+
+        public ICommand CmdFilterEmployees {
+            get {
+                throw new NotImplementedException();
             }
         }
     }

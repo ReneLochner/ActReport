@@ -11,15 +11,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
         <Button Height="30" Command="{Binding CmdSaveChanges}">Änderung speichern</Button>
-        <UniformGrid Grid.Row="1" Rows="2" Columns="2">
+        <UniformGrid Grid.Row="1" Columns="2">
             <TextBlock>Vorname:</TextBlock>
             <TextBox Text="{Binding FirstName}"></TextBox>
             <TextBlock>Nachname:</TextBlock>
-            <TextBox Text="{Binding LastName}"></TextBox>
+            <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock>Filtern:</TextBlock>
+            <TextBox Text="{Binding FilterString, UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </UniformGrid>
         <ListView SelectedItem="{Binding SelectedEmployee}" Grid.Row="2" ItemsSource="{Binding Employees}">
             <ListView.View>
@@ -29,5 +32,6 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <Button Grid.Row="3" Height="30" Command="{Binding CmdAddEntry}">Person hinzufügen</Button>
     </Grid>
 </Window>
